@@ -26,14 +26,15 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t my-devops-app .
+       ##docker build -t my-devops-app .
+       docker build -t devops-demo-app .
         
 
     - name: Tag image
       ##env:
         ##AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       run: |
-        docker tag my-devops-app:latest ${{ steps.login-ecr.outputs.registry }}/devops-demo-app:latest
+        docker tag devops-demo-app:latest ${{ steps.login-ecr.outputs.registry }}/devops-demo-app:latest
 
     - name: Push to ECR
       ##env:
