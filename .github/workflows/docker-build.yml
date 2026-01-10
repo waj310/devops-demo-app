@@ -26,7 +26,6 @@ jobs:
 
     - name: Build Docker image
       run: |
-       ##docker build -t my-devops-app .
        docker build -t devops-demo-app .
         
 
