@@ -20,7 +20,7 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --region us-east-1 --name devops-demo
+        aws eks update-kubeconfig --region us-east-2 --name education-eks-bNeGzjL4
 
     - name: Deploy to production
       run: |
