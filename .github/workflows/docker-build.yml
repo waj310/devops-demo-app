@@ -1,16 +1,18 @@
 name: Build and Push Docker Image
-
+## Every time you push to main, Github Actions automatically runs this workflow
+## This ensures your Docker image is always rebuilt when your main code changes.
 on:
   push:
     branches: [ "main" ]
-
+##Run this job on a Linux VM (Ubuntu). - This VM is where Docker will build your image
 jobs:
   build:
     runs-on: ubuntu-latest
-
+## This pulls your repository code into the GitHub Actions runner. Without this, Docker would have nothing to build.
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+## This step Authenticates the GitHub runner to AWS, Uses your IAM user credentials stored in GitHub Secrets, Sets the region for all AWS CLI commands
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -18,22 +20,29 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
+## This step - Logs Docker into your ECR registry .- Produces an output called registry (your ECR URL)
+##  123456789012.dkr.ecr.us-east-1.amazonaws.com. This is used in the next steps.
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
+## 	Build a Docker image using your Dockerfile. - Tag it locally as devops-demo-app:latest
+## This image exists only inside the GitHub runner at this point.
 
     - name: Build Docker image
       run: |
        docker build -t devops-demo-app .
         
+## This is crucial. Docker images must be tagged with the full ECR registry URL before pushing. This tells Docker: “This image belongs to this ECR repository.”
 
     - name: Tag image
       ##env:
         ##AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       run: |
         docker tag devops-demo-app:latest ${{ steps.login-ecr.outputs.registry }}/devops-demo-app:latest
+        
+## This uploads your image to ECR. After this step: Your image is stored in AWS, EKS can pull it, - Your deployment workflows can update pods with this new image
 
     - name: Push to ECR
       ##env:
